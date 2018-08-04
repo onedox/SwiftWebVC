@@ -271,9 +271,9 @@ public class SwiftWebVC: UIViewController {
         UINavigationBar.appearance().barStyle = storedStatusColor!
         self.dismiss(animated: true, completion: nil)
     }
-
+    
     // MARK: - Class Methods
-
+    
     /// Helper function to get image within SwiftWebVCResources bundle
     ///
     /// - parameter named: The name of the image in the SwiftWebVCResources bundle
@@ -290,7 +290,16 @@ public class SwiftWebVC: UIViewController {
 extension SwiftWebVC: WKUIDelegate {
     
     // Add any desired WKUIDelegate methods here: https://developer.apple.com/reference/webkit/wkuidelegate
-    
+ 
+    public func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+        if (navigationAction.targetFrame == nil) {
+            let url = navigationAction.request.url
+            if UIApplication.shared.canOpenURL(url!) {
+                UIApplication.shared.openURL(url!)
+            }
+        }
+        return nil
+    }
 }
 
 extension SwiftWebVC: WKNavigationDelegate {
@@ -322,24 +331,25 @@ extension SwiftWebVC: WKNavigationDelegate {
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         
         let url = navigationAction.request.url
-        
+
         let hostAddress = navigationAction.request.url?.host
-        
-        if (navigationAction.targetFrame == nil) {
-            if UIApplication.shared.canOpenURL(url!) {
-                UIApplication.shared.openURL(url!)
-            }
-        }
         
         // To connnect app store
         if hostAddress == "itunes.apple.com" {
-            if UIApplication.shared.canOpenURL(navigationAction.request.url!) {
-                UIApplication.shared.openURL(navigationAction.request.url!)
+            if UIApplication.shared.canOpenURL(url!) {
+                UIApplication.shared.openURL(url!)
                 decisionHandler(.cancel)
                 return
             }
         }
         
+        if (navigationAction.targetFrame == nil) {
+            let url = navigationAction.request.url
+            if UIApplication.shared.canOpenURL(url!) {
+                UIApplication.shared.openURL(url!)
+            }
+        }
+
         let url_elements = url!.absoluteString.components(separatedBy: ":")
         
         switch url_elements[0] {
