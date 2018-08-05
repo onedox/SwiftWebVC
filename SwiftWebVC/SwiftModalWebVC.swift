@@ -12,9 +12,10 @@ public class SwiftModalWebVC: UINavigationController {
     
     weak var webViewDelegate: UIWebViewDelegate? = nil
     
-    public init(request: URLRequest) {
+    public init(request: URLRequest, delegate: SwiftWebVCDelegate) {
         let webViewController = SwiftWebVC(aRequest: request)
-        
+        webViewController.delegate = delegate
+
         webViewController.storedStatusColor = UINavigationBar.appearance().barStyle
         let doneButton = UIBarButtonItem(title: "Done",
                                          style: UIBarButtonItemStyle.plain,
@@ -33,6 +34,8 @@ public class SwiftModalWebVC: UINavigationController {
         }
         
         super.init(rootViewController: webViewController)
+
+        self.hidesBarsOnSwipe = true
     }
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
