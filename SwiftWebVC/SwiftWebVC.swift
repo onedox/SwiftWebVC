@@ -10,7 +10,7 @@ import WebKit
 
 public protocol SwiftWebVCDelegate: class {
     func didStartLoading()
-    func didFinishLoading(success: Bool)
+    func didFinishLoading(webView: WKWebView, navigation: WKNavigation, success: Bool)
 }
 
 public class SwiftWebVC: UIViewController {
@@ -218,8 +218,22 @@ public class SwiftWebVC: UIViewController {
                 toolbarItems = items as? [UIBarButtonItem]
             }
         }
+        updateBottomInset()
     }
     
+    
+    public override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        coordinator.animate(alongsideTransition: nil) { [weak self] context in
+            self?.updateBottomInset() //Fix the bottom insets after rotating the device
+        }
+    }
+    
+    func updateBottomInset() {
+        // Leave space for the toolbar at the bottom
+        webView.scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: navigationController?.toolbar.frame.height ?? 0, right: 0)
+    }
     
     ////////////////////////////////////////////////
     // Target Actions
@@ -284,7 +298,6 @@ public class SwiftWebVC: UIViewController {
         } // Replace MyBasePodClass with yours
         return image
     }
-    
 }
 
 extension SwiftWebVC: WKUIDelegate {
@@ -311,7 +324,7 @@ extension SwiftWebVC: WKNavigationDelegate {
     }
     
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        self.delegate?.didFinishLoading(success: true)
+        self.delegate?.didFinishLoading(webView: webView, navigation: navigation, success: true)
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
         
         webView.evaluateJavaScript("document.title", completionHandler: {(response, error) in
@@ -323,7 +336,7 @@ extension SwiftWebVC: WKNavigationDelegate {
     }
     
     public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        self.delegate?.didFinishLoading(success: false)
+        self.delegate?.didFinishLoading(webView: webView, navigation: navigation, success: false)
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
         updateToolbarItems()
     }
