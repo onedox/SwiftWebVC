@@ -81,8 +81,6 @@ public class SwiftWebVC: UIViewController {
     
     var request: URLRequest!
     
-    var navBarTitle: UILabel!
-    
     var sharingEnabled = true
     
     var hideToolBar: Bool = false
@@ -135,22 +133,6 @@ public class SwiftWebVC: UIViewController {
         assert(self.navigationController != nil, "SVWebViewController needs to be contained in a UINavigationController. If you are presenting SVWebViewController modally, use SVModalWebViewController instead.")
         
         updateToolbarItems()
-        navBarTitle = UILabel()
-        navBarTitle.backgroundColor = UIColor.clear
-        if presentingViewController == nil {
-            
-            if let titleAttributes = navigationController!.navigationBar.titleTextAttributes as [NSAttributedStringKey : Any]? {
-                navBarTitle.textColor = titleAttributes[NSAttributedStringKey.foregroundColor] as! UIColor
-            }
-        }
-        else {
-            navBarTitle.textColor = self.titleColor
-        }
-        navBarTitle.shadowOffset = CGSize(width: 0, height: 1);
-        navBarTitle.font = UIFont(name: "HelveticaNeue-Medium", size: 17.0)
-        navBarTitle.textAlignment = .center
-        navigationItem.titleView = navBarTitle;
-        
         super.viewWillAppear(true)
         
         if (UIDevice.current.userInterfaceIdiom == UIUserInterfaceIdiom.phone) {
@@ -159,6 +141,30 @@ public class SwiftWebVC: UIViewController {
         else if (UIDevice.current.userInterfaceIdiom == UIUserInterfaceIdiom.pad) {
             self.navigationController?.setToolbarHidden(true, animated: true)
         }
+    }
+    
+    func setTitle(title:String, subtitle:String) {
+        let titleLabel = UILabel(frame: CGRect.init(x: 0, y: -5, width: 0, height: 0))
+        titleLabel.backgroundColor = UIColor.clear
+        titleLabel.textColor = UIColor.black
+        titleLabel.font = UIFont.boldSystemFont(ofSize: 17)
+        titleLabel.text = title
+        titleLabel.sizeToFit()
+
+        let subtitleLabel = UILabel(frame: CGRect.init(x: 0, y: 18, width: 0, height: 0))
+        subtitleLabel.backgroundColor = UIColor.clear
+        subtitleLabel.textColor = UIColor.lightGray
+        subtitleLabel.font = UIFont.systemFont(ofSize: 12)
+        subtitleLabel.text = subtitle
+        subtitleLabel.sizeToFit()
+        
+        let titleView = UIView(frame: CGRect.init(x: 0, y: 0, width: max(titleLabel.frame.size.width, subtitleLabel.frame.size.width), height: 30))
+        titleView.addSubview(titleLabel)
+        titleView.addSubview(subtitleLabel)
+
+        self.navigationItem.titleView = titleView
+        titleLabel.center.x = titleView.center.x
+        subtitleLabel.center.x = titleView.center.x
     }
     
     override public func viewWillDisappear(_ animated: Bool) {
@@ -224,7 +230,7 @@ public class SwiftWebVC: UIViewController {
                 toolbarItems = items as? [UIBarButtonItem]
             }
         }
-        updateBottomInset()
+        updateInset()
     }
     
     
@@ -232,13 +238,20 @@ public class SwiftWebVC: UIViewController {
         super.viewWillTransition(to: size, with: coordinator)
         
         coordinator.animate(alongsideTransition: nil) { [weak self] context in
-            self?.updateBottomInset() //Fix the bottom insets after rotating the device
+            self?.updateInset() //Fix the bottom insets after rotating the device
         }
     }
     
-    func updateBottomInset() {
+    func updateInset() {
+        var topInset: CGFloat = 0
+        if #available(iOS 11, *) {
+            // 0 is correct
+        } else {
+            topInset = 20 + (navigationController?.navigationBar.frame.height ?? 0)
+        }
+        
         // Leave space for the toolbar at the bottom
-        webView.scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: navigationController?.toolbar.frame.height ?? 0, right: 0)
+        webView.scrollView.contentInset = UIEdgeInsets(top: topInset, left: 0, bottom: navigationController?.toolbar.frame.height ?? 0, right: 0)
     }
     
     ////////////////////////////////////////////////
@@ -333,10 +346,11 @@ extension SwiftWebVC: WKNavigationDelegate {
         self.delegate?.didFinishLoading(webView: webView, navigation: navigation, success: true)
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
         
-        webView.evaluateJavaScript("document.title", completionHandler: {(response, error) in
-            self.navBarTitle.text = response as! String?
-            self.navBarTitle.sizeToFit()
-            self.updateToolbarItems()
+        webView.evaluateJavaScript("document.title", completionHandler: {(title, error) in
+            webView.evaluateJavaScript("document.location.origin", completionHandler: {(host, error) in
+                self.setTitle(title: title as! String, subtitle: host as! String)
+                self.updateToolbarItems()
+            })
         })
         
     }
