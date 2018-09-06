@@ -36,6 +36,8 @@ public class SwiftModalWebVC: UINavigationController {
         super.init(rootViewController: webViewController)
 
         self.hidesBarsOnSwipe = true
+        self.hidesBarsOnTap = true
+        self.hidesBarsWhenKeyboardAppears = true
     }
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
