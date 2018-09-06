@@ -15,6 +15,12 @@ public protocol SwiftWebVCDelegate: class {
 
 public class SwiftWebVC: UIViewController {
     
+    static let configuration: WKWebViewConfiguration = {
+        let configuration = WKWebViewConfiguration()
+        configuration.processPool = WKProcessPool()
+        return configuration
+    }()
+
     public weak var delegate: SwiftWebVCDelegate?
     var storedStatusColor: UIBarStyle?
     var buttonColor: UIColor? = nil
@@ -67,7 +73,7 @@ public class SwiftWebVC: UIViewController {
     
     
     lazy var webView: WKWebView = {
-        var tempWebView = WKWebView(frame: UIScreen.main.bounds)
+        var tempWebView = WKWebView(frame: UIScreen.main.bounds, configuration: SwiftWebVC.configuration)
         tempWebView.uiDelegate = self
         tempWebView.navigationDelegate = self
         return tempWebView;
