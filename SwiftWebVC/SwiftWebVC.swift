@@ -20,7 +20,7 @@ public class SwiftWebVC: UIViewController {
         configuration.processPool = WKProcessPool()
         return configuration
     }()
-
+    
     public weak var delegate: SwiftWebVCDelegate?
     var storedStatusColor: UIBarStyle?
     var buttonColor: UIColor? = nil
@@ -71,12 +71,30 @@ public class SwiftWebVC: UIViewController {
         return tempActionBarButtonItem
     }()
     
+    var activityIndicator: UIActivityIndicatorView?
+    
+    lazy var loadingBarButtonItem: UIBarButtonItem = {
+        activityIndicator = UIActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
+        activityIndicator?.color = .blue
+        let barButton = UIBarButtonItem(customView: activityIndicator!)
+        return barButton
+    }()
+    
+    func showLoadingIndicator() {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        activityIndicator?.startAnimating()
+    }
+    
+    func hideLoadingIndicator() {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        activityIndicator?.stopAnimating()
+    }
     
     lazy var webView: WKWebView = {
         var tempWebView = WKWebView(frame: UIScreen.main.bounds, configuration: SwiftWebVC.configuration)
         tempWebView.uiDelegate = self
         tempWebView.navigationDelegate = self
-        return tempWebView;
+        return tempWebView
     }()
     
     var request: URLRequest!
@@ -89,7 +107,7 @@ public class SwiftWebVC: UIViewController {
     
     deinit {
         webView.stopLoading()
-        UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        hideLoadingIndicator()
         webView.uiDelegate = nil;
         webView.navigationDelegate = nil;
     }
@@ -111,6 +129,14 @@ public class SwiftWebVC: UIViewController {
         self.sharingEnabled = sharingEnabled
         self.request = aRequest
         self.hideToolBar = hideToolBar
+        
+        if (UIDevice.current.userInterfaceIdiom == UIUserInterfaceIdiom.pad) {
+            self.navigationItem.rightBarButtonItem = loadingBarButtonItem
+        } else {
+            self.navigationItem.leftBarButtonItem = loadingBarButtonItem
+        }
+        
+        self.setTitle(title: "", subtitle: aRequest.url?.host ?? "Loading...")
     }
     
     func loadRequest(_ request: URLRequest) {
@@ -177,7 +203,7 @@ public class SwiftWebVC: UIViewController {
     
     override public func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(true)
-        UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        hideLoadingIndicator()
     }
     
     ////////////////////////////////////////////////
@@ -214,7 +240,6 @@ public class SwiftWebVC: UIViewController {
                 toolbar.tintColor = navigationController!.navigationBar.tintColor
             }
             navigationItem.rightBarButtonItems = items.reverseObjectEnumerator().allObjects as? [UIBarButtonItem]
-            
         }
         else {
             let items: NSArray = sharingEnabled ? [fixedSpace, backBarButtonItem, flexibleSpace, forwardBarButtonItem, flexibleSpace, refreshStopBarButtonItem, flexibleSpace, actionBarButtonItem, fixedSpace] : [fixedSpace, backBarButtonItem, flexibleSpace, forwardBarButtonItem, flexibleSpace, refreshStopBarButtonItem, fixedSpace]
@@ -322,7 +347,7 @@ public class SwiftWebVC: UIViewController {
 extension SwiftWebVC: WKUIDelegate {
     
     // Add any desired WKUIDelegate methods here: https://developer.apple.com/reference/webkit/wkuidelegate
- 
+    
     public func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         if (navigationAction.targetFrame == nil) {
             let url = navigationAction.request.url
@@ -338,14 +363,12 @@ extension SwiftWebVC: WKNavigationDelegate {
     
     public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
         self.delegate?.didStartLoading()
-        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        showLoadingIndicator()
         updateToolbarItems()
     }
     
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         self.delegate?.didFinishLoading(webView: webView, navigation: navigation, success: true)
-        UIApplication.shared.isNetworkActivityIndicatorVisible = false
-        
         webView.evaluateJavaScript("document.title", completionHandler: {(title, error) in
             webView.evaluateJavaScript("document.location.origin", completionHandler: {(host, error) in
                 self.setTitle(title: title as! String, subtitle: host as! String)
@@ -353,18 +376,19 @@ extension SwiftWebVC: WKNavigationDelegate {
             })
         })
         
+        hideLoadingIndicator()
     }
     
     public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         self.delegate?.didFinishLoading(webView: webView, navigation: navigation, success: false)
-        UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        hideLoadingIndicator()
         updateToolbarItems()
     }
     
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         
         let url = navigationAction.request.url
-
+        
         let hostAddress = navigationAction.request.url?.host
         
         // To connnect app store
@@ -382,7 +406,7 @@ extension SwiftWebVC: WKNavigationDelegate {
                 UIApplication.shared.openURL(url!)
             }
         }
-
+        
         let url_elements = url!.absoluteString.components(separatedBy: ":")
         
         switch url_elements[0] {
