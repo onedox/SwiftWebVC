@@ -22,9 +22,9 @@ public class SwiftModalWebVC: UINavigationController {
                                          target: webViewController,
                                          action: #selector(SwiftWebVC.doneButtonTapped))
 
-        doneButton.tintColor = UIColor.black
-        webViewController.buttonColor = UIColor.black
-        webViewController.titleColor = UIColor.black
+        doneButton.tintColor = UIColor.white
+        webViewController.buttonColor = UIColor.white
+        webViewController.titleColor = UIColor.white
 
         if (UIDevice.current.userInterfaceIdiom == UIUserInterfaceIdiom.pad) {
             webViewController.navigationItem.leftBarButtonItem = doneButton

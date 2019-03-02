@@ -76,7 +76,7 @@ public class SwiftWebVC: UIViewController {
     
     lazy var loadingBarButtonItem: UIBarButtonItem = {
         activityIndicator = UIActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
-        activityIndicator?.color = .blue
+        activityIndicator?.color = UIColor.white.withAlphaComponent(0.56)
         let barButton = UIBarButtonItem(customView: activityIndicator!)
         return barButton
     }()
@@ -136,11 +136,10 @@ public class SwiftWebVC: UIViewController {
         } else {
             self.navigationItem.leftBarButtonItem = loadingBarButtonItem
         }
-        
-        self.setTitle(title: "", subtitle: aRequest.url?.host ?? "Loading...")
     }
-    
+
     func loadRequest(_ request: URLRequest) {
+        self.setTitle(title: "", subtitle: request.url?.host ?? "Loading...")
         webView.load(request)
     }
     
@@ -149,11 +148,11 @@ public class SwiftWebVC: UIViewController {
     
     override public func loadView() {
         view = webView
-        loadRequest(request)
     }
     
     override public func viewDidLoad() {
         super.viewDidLoad()
+        loadRequest(request)
     }
     
     override public func viewWillAppear(_ animated: Bool) {
@@ -173,14 +172,14 @@ public class SwiftWebVC: UIViewController {
     func setTitle(title:String, subtitle:String) {
         let titleLabel = UILabel(frame: CGRect.init(x: 0, y: -5, width: 0, height: 0))
         titleLabel.backgroundColor = UIColor.clear
-        titleLabel.textColor = UIColor.black
+        titleLabel.textColor = buttonColor
         titleLabel.font = UIFont.boldSystemFont(ofSize: 17)
         titleLabel.text = title
         titleLabel.sizeToFit()
 
         let subtitleLabel = UILabel(frame: CGRect.init(x: 0, y: 18, width: 0, height: 0))
         subtitleLabel.backgroundColor = UIColor.clear
-        subtitleLabel.textColor = UIColor.lightGray
+        subtitleLabel.textColor = buttonColor?.withAlphaComponent(0.7)
         subtitleLabel.font = UIFont.systemFont(ofSize: 12)
         subtitleLabel.text = subtitle
         subtitleLabel.sizeToFit()
