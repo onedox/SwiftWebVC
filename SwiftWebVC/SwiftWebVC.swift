@@ -90,11 +90,14 @@ public class SwiftWebVC: UIViewController {
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
         activityIndicator?.stopAnimating()
     }
-    
+
+    private(set) var hasWebView = false
+
     lazy var webView: WKWebView = {
         var tempWebView = WKWebView(frame: UIScreen.main.bounds, configuration: SwiftWebVC.configuration)
         tempWebView.uiDelegate = self
         tempWebView.navigationDelegate = self
+        hasWebView = true
         return tempWebView
     }()
     
@@ -107,10 +110,13 @@ public class SwiftWebVC: UIViewController {
     ////////////////////////////////////////////////
     
     deinit {
-        webView.stopLoading()
         hideLoadingIndicator()
-        webView.uiDelegate = nil;
-        webView.navigationDelegate = nil;
+        // if not webView doesn't exist yet then don't init as that causes crash:
+        if (hasWebView) {
+            webView.stopLoading()
+            webView.uiDelegate = nil;
+            webView.navigationDelegate = nil;
+        }
     }
     
     public convenience init(urlString: String, sharingEnabled: Bool = true, hideToolBar: Bool = false) {
