@@ -10,8 +10,6 @@ import UIKit
 
 public class SwiftModalWebVC: UINavigationController {
     
-    weak var webViewDelegate: UIWebViewDelegate? = nil
-    
     public init(request: URLRequest, delegate: SwiftWebVCDelegate) {
         let webViewController = SwiftWebVC(aRequest: request)
         webViewController.delegate = delegate
