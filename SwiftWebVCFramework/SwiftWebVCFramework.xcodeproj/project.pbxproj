@@ -150,14 +150,14 @@
 				TargetAttributes = {
 					B91D24E21E5CFE6E000F9BF1 = {
 						CreatedOnToolsVersion = 8.2.1;
-						LastSwiftMigration = 0940;
+						LastSwiftMigration = 1150;
 						ProvisioningStyle = Automatic;
 					};
 				};
 			};
 			buildConfigurationList = B91D24DD1E5CFE6E000F9BF1 /* Build configuration list for PBXProject "SwiftWebVCFramework" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
@@ -171,6 +171,7 @@
 				vi,
 				"zh-Hans",
 				"zh-Hant",
+				Base,
 			);
 			mainGroup = B91D24D91E5CFE6E000F9BF1;
 			productRefGroup = B91D24E41E5CFE6E000F9BF1 /* Products */;
@@ -364,7 +365,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -384,7 +385,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};

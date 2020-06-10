@@ -16,7 +16,7 @@ public class SwiftModalWebVC: UINavigationController {
 
         webViewController.storedStatusColor = UINavigationBar.appearance().barStyle
         let doneButton = UIBarButtonItem(title: "Done",
-                                         style: UIBarButtonItemStyle.plain,
+                                         style: UIBarButtonItem.Style.plain,
                                          target: webViewController,
                                          action: #selector(SwiftWebVC.doneButtonTapped))
 
