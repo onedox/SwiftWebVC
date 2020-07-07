@@ -181,22 +181,18 @@ public class SwiftWebVC: UIViewController {
         titleLabel.textColor = buttonColor
         titleLabel.font = UIFont.boldSystemFont(ofSize: 17)
         titleLabel.text = title
-        titleLabel.sizeToFit()
 
         let subtitleLabel = UILabel(frame: CGRect.init(x: 0, y: 18, width: 0, height: 0))
         subtitleLabel.backgroundColor = UIColor.clear
         subtitleLabel.textColor = buttonColor?.withAlphaComponent(0.7)
         subtitleLabel.font = UIFont.systemFont(ofSize: 12)
         subtitleLabel.text = subtitle
-        subtitleLabel.sizeToFit()
-        
-        let titleView = UIView(frame: CGRect.init(x: 0, y: 0, width: max(titleLabel.frame.size.width, subtitleLabel.frame.size.width), height: 30))
-        titleView.addSubview(titleLabel)
-        titleView.addSubview(subtitleLabel)
+
+        let titleView = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel])
+        titleView.axis = .vertical
+        titleView.alignment = .center
 
         self.navigationItem.titleView = titleView
-        titleLabel.center.x = titleView.center.x
-        subtitleLabel.center.x = titleView.center.x
     }
     
     override public func viewWillDisappear(_ animated: Bool) {
